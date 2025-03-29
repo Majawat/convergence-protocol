@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="dark">
   <head>
@@ -415,3 +416,422 @@
     </template>
   </body>
 </html>
+=======
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Game Tracker - The Convergence Protocol</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Bootstrap Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+    />
+
+    <!-- Custom CSS for page -->
+    <link rel="stylesheet" href="css/styles.css" />
+    <link rel="stylesheet" href="css/tracker.css" />
+
+    <!-- Favicon -->
+    <link rel="icon" href="favicon.ico" type="image/x-icon" />
+
+    <!-- Preload critical resources -->
+    <link rel="preload" href="js/dataManager.js" as="script" />
+    <link rel="preload" href="js/tracker.js" as="script" />
+  </head>
+  <body class="tracker-page">
+    <!-- Fixed top action bar -->
+    <div class="action-bar sticky-top bg-dark">
+      <div class="container-fluid">
+        <div class="row align-items-center py-2">
+          <div class="col-auto d-lg-none">
+            <button class="btn btn-outline-light" id="menuToggleBtn">
+              <i class="bi bi-list"></i>
+            </button>
+          </div>
+          <div class="col-auto">
+            <a href="index.html" class="btn btn-outline-light">
+              <i class="bi bi-house-fill"></i>
+            </a>
+          </div>
+          <div class="col text-center">
+            <span class="badge bg-primary p-2 game-status">
+              <span id="roundCounter">Round 1</span> |
+              <span id="phaseIndicator">Movement Phase</span>
+            </span>
+          </div>
+          <div class="col-auto">
+            <div class="d-flex gap-2">
+              <button id="saveGameBtn" class="btn btn-outline-success">
+                <i class="bi bi-save"></i>
+              </button>
+              <button id="themeToggle" class="btn btn-outline-light">
+                <i class="bi bi-sun-fill"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid p-0">
+      <div class="row g-0 h-100">
+        <!-- Game controls panel (collapsible on mobile) -->
+        <div class="col-lg-3 game-controls-panel" id="gameControlsPanel">
+          <div class="p-3 bg-body-tertiary h-100 overflow-auto">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h4 class="mb-0">Game Controls</h4>
+              <button
+                class="btn btn-sm btn-outline-secondary d-lg-none"
+                id="closeMenuBtn"
+              >
+                <i class="bi bi-x-lg"></i>
+              </button>
+            </div>
+
+            <!-- Army selector -->
+            <div class="card mb-3">
+              <div class="card-header">
+                <h5 class="card-title mb-0">Select Army</h5>
+              </div>
+              <div class="card-body">
+                <select class="form-select" id="armySelector">
+                  <option value="" selected disabled>Choose an army...</option>
+                  <!-- Options will be populated dynamically -->
+                </select>
+                <div class="army-meta mt-2" id="armyMeta"></div>
+              </div>
+            </div>
+
+            <!-- Round controls -->
+            <div class="card mb-3">
+              <div
+                class="card-header d-flex justify-content-between align-items-center"
+              >
+                <h5 class="card-title mb-0">Round Management</h5>
+                <span class="badge bg-primary" id="currentRound">Round 1</span>
+              </div>
+              <div class="card-body">
+                <div class="d-flex justify-content-between gap-2">
+                  <button
+                    class="btn btn-outline-secondary flex-grow-1"
+                    id="prevRoundBtn"
+                  >
+                    <i class="bi bi-arrow-left-circle"></i> Previous
+                  </button>
+                  <button class="btn btn-primary flex-grow-1" id="nextRoundBtn">
+                    Next <i class="bi bi-arrow-right-circle"></i>
+                  </button>
+                </div>
+                <button
+                  class="btn btn-warning w-100 mt-2"
+                  id="resetActivationsBtn"
+                >
+                  <i class="bi bi-arrow-clockwise"></i> Reset Activations
+                </button>
+              </div>
+            </div>
+
+            <!-- Command points tracker -->
+            <div class="card mb-3">
+              <div class="card-header">
+                <h5 class="card-title mb-0">Command Points</h5>
+              </div>
+              <div class="card-body">
+                <div
+                  class="d-flex align-items-center justify-content-center gap-2 mb-2"
+                >
+                  <button
+                    class="btn btn-lg btn-outline-danger"
+                    id="cpDecrementBtn"
+                  >
+                    <i class="bi bi-dash-lg"></i>
+                  </button>
+                  <span class="display-4 mx-3" id="cpCounter">3</span>
+                  <button
+                    class="btn btn-lg btn-outline-success"
+                    id="cpIncrementBtn"
+                  >
+                    <i class="bi bi-plus-lg"></i>
+                  </button>
+                </div>
+                <div class="text-center">
+                  <small class="text-muted">Command Points Available</small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Doctrine stratagems -->
+            <div class="card mb-3">
+              <div class="card-header">
+                <h5 class="card-title mb-0">Doctrine Stratagems</h5>
+              </div>
+              <div class="card-body p-0">
+                <div class="accordion" id="doctrineAccordion">
+                  <!-- Doctrine contents will be loaded dynamically -->
+                  <div class="accordion-item">
+                    <h2 class="accordion-header">
+                      <button
+                        class="accordion-button collapsed"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#universalDoctrineCollapse"
+                      >
+                        <i class="bi bi-infinity me-2"></i> Universal Doctrine
+                      </button>
+                    </h2>
+                    <div
+                      id="universalDoctrineCollapse"
+                      class="accordion-collapse collapse"
+                      data-bs-parent="#doctrineAccordion"
+                    >
+                      <div class="accordion-body p-2">
+                        <div class="list-group list-group-flush">
+                          <button
+                            class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+                          >
+                            High Command
+                            <span class="badge bg-primary">1 CP</span>
+                          </button>
+                          <!-- More stratagems will be loaded dynamically -->
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Random Events -->
+            <div class="card mb-3">
+              <div
+                class="card-header d-flex justify-content-between align-items-center"
+              >
+                <h5 class="card-title mb-0">Random Events</h5>
+                <button
+                  class="btn btn-sm btn-outline-primary"
+                  id="generateEventBtn"
+                >
+                  <i class="bi bi-dice-5-fill"></i> Generate
+                </button>
+              </div>
+              <div class="card-body">
+                <div id="randomEventDisplay">
+                  <p class="text-muted text-center">
+                    No random event generated yet.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Notes -->
+            <div class="card mb-3">
+              <div class="card-header">
+                <h5 class="card-title mb-0">Game Notes</h5>
+              </div>
+              <div class="card-body">
+                <textarea
+                  class="form-control"
+                  id="gameNotes"
+                  rows="3"
+                  placeholder="Add notes about the current game..."
+                ></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Main army display area -->
+        <div class="col-lg-9 army-display-panel">
+          <div class="p-3 h-100 overflow-auto">
+            <!-- Army header -->
+            <div class="army-header mb-3">
+              <div
+                class="d-flex justify-content-between align-items-center flex-wrap"
+              >
+                <h2 id="armyName">Select an Army</h2>
+                <div class="d-flex gap-2 army-controls">
+                  <div class="input-group">
+                    <input
+                      type="text"
+                      class="form-control"
+                      placeholder="Search units..."
+                      id="unitSearch"
+                    />
+                    <button
+                      class="btn btn-outline-secondary"
+                      type="button"
+                      id="clearSearchBtn"
+                    >
+                      <i class="bi bi-x"></i>
+                    </button>
+                  </div>
+                  <div class="btn-group">
+                    <input
+                      type="checkbox"
+                      class="btn-check"
+                      id="hideActivatedBtn"
+                      autocomplete="off"
+                    />
+                    <label
+                      class="btn btn-outline-primary"
+                      for="hideActivatedBtn"
+                      >Hide Activated</label
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Unit display area -->
+            <div id="unitContainer" class="row g-3">
+              <!-- Units will be loaded here dynamically -->
+              <div class="col-12 text-center py-5">
+                <p class="text-muted">Select an army to view units</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Unit detail modal -->
+    <div
+      class="modal fade"
+      id="unitDetailModal"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="unitDetailTitle">Unit Details</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body" id="unitDetailContent">
+            <!-- Unit details will be loaded here -->
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tooltips container for notifications -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+      <!-- Toasts will be added dynamically -->
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Custom JS -->
+    <script src="js/utils.js"></script>
+    <script src="js/dataManager.js"></script>
+    <script src="js/armyData.js"></script>
+    <script src="js/tracker.js"></script>
+
+    <!-- Template for Unit Cards -->
+    <template id="unitCardTemplate">
+      <div class="col-md-6 col-lg-4 col-xl-3">
+        <div class="card unit-card">
+          <div
+            class="card-header d-flex justify-content-between align-items-center"
+          >
+            <h5 class="card-title mb-0 unit-name"></h5>
+            <div class="form-check form-switch">
+              <input
+                class="form-check-input unit-activated"
+                type="checkbox"
+                role="switch"
+              />
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="d-flex justify-content-between unit-meta mb-2">
+              <div class="d-flex gap-2 unit-stats">
+                <div class="stat-item quality-stat" title="Quality">
+                  <i class="bi bi-award-fill"></i>
+                  <span class="stat-value"></span>
+                </div>
+                <div class="stat-item defense-stat" title="Defense">
+                  <i class="bi bi-shield-fill"></i>
+                  <span class="stat-value"></span>
+                </div>
+                <div class="stat-item tough-stat" title="Tough">
+                  <i class="bi bi-heart-fill"></i>
+                  <span class="stat-value"></span>
+                </div>
+              </div>
+              <div class="unit-size">
+                <span class="badge bg-secondary"
+                  >Size: <span class="size-value"></span
+                ></span>
+              </div>
+            </div>
+
+            <div class="unit-wounds mb-3">
+              <label class="form-label d-flex justify-content-between">
+                <span>Wounds</span>
+                <span class="wound-counter">
+                  <span class="current-wounds">0</span>/<span class="max-wounds"
+                    >0</span
+                  >
+                </span>
+              </label>
+              <div class="d-flex gap-2 align-items-center">
+                <button class="btn btn-sm btn-outline-danger wound-decrement">
+                  <i class="bi bi-dash"></i>
+                </button>
+                <div class="progress flex-grow-1">
+                  <div
+                    class="progress-bar bg-danger wound-progress"
+                    role="progressbar"
+                    style="width: 100%"
+                  ></div>
+                </div>
+                <button class="btn btn-sm btn-outline-success wound-increment">
+                  <i class="bi bi-plus"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="unit-rules mb-3">
+              <div class="rules-container"></div>
+            </div>
+
+            <div class="unit-weapons">
+              <div class="weapons-container"></div>
+            </div>
+          </div>
+          <div class="card-footer">
+            <button class="btn btn-sm btn-primary w-100 view-details-btn">
+              <i class="bi bi-arrows-expand"></i> View Details
+            </button>
+          </div>
+        </div>
+      </div>
+    </template>
+  </body>
+</html>
+>>>>>>> refs/remotes/origin/main
