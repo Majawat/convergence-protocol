@@ -1,8 +1,6 @@
 // Unit.js
-
 import { Model } from "./Model.js";
 import { SpecialRule } from "./SpecialRule.js";
-import { Upgrade } from "./Upgrade.js";
 import { Weapon } from "./Weapon.js";
 
 class Unit {
@@ -13,6 +11,7 @@ class Unit {
     this.name = data.name || "Unknown Unit";
     this.customName = data.customName || this.name;
     this.cost = data.cost || 0;
+    this.bases = this.processBasesData(data.bases);
 
     // Unit stats
     this.size = data.size || 1;
@@ -75,6 +74,20 @@ class Unit {
     // Convert upgrade data to Upgrade objects
     // this.upgrades = upgradesData.map(upgradeData => new Upgrade(upgradeData, this));
     this.upgrades = upgradesData; // Simplified for now
+  }
+
+  // Helper method to process bases sizes
+  processBasesData(basesData) {
+    if (basesData === "none") {
+      return null;
+    } else if (basesData && typeof basesData === "object") {
+      // Optional: validate object structure
+      if (basesData.round || basesData.square) {
+        return basesData;
+      }
+    }
+    // Default return if not valid
+    return null;
   }
 
   // Create individual models with assigned weapons
@@ -147,9 +160,9 @@ class Unit {
 
     // Check if destroyed
     if (this.wounds >= this.maxWounds) {
-      this.isDestroyed = true;
+      this.setDestroyed(true);
     } else {
-      this.isDestroyed = false;
+      this.setDestroyed(false);
     }
 
     return this.wounds - originalWounds;
@@ -164,16 +177,24 @@ class Unit {
     // based on your game's rules for casualty allocation
   }
 
-  // Change morale state
-  setMorale(newState) {
-    this.morale = newState;
+  // Set Shaken state
+  setShaken(newState) {
+    this.isShaken = newState;
+  }
 
-    // Apply to combined units
-    if (this.combined && this.combinedUnits.length > 0) {
-      this.combinedUnits.forEach((unit) => {
-        unit.morale = newState;
-      });
-    }
+  // Set Fatigued state
+  setFatigued(newState) {
+    this.isFatigued = newState;
+  }
+
+  // Set Routed state
+  setRouted(newState) {
+    this.isRouted = newState;
+  }
+
+  // Set Destroyed State
+  setDestroyed(newState) {
+    this.isDestroyed = newState;
   }
 
   // Get total size including combined units
@@ -221,7 +242,7 @@ class Unit {
 
   // Helper to generate a unique ID
   generateId() {
-    return `unit_ + ${Math.random().toString(36).substring(2, 11)}`;
+    return `unit_${Math.random().toString(36).substring(2, 11)}`;
   }
 }
 

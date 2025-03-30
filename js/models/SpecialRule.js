@@ -55,7 +55,7 @@ class SpecialRule {
 
   // Helper to generate a unique ID
   generateId() {
-    return `rule_ + ${Math.random().toString(36).substring(2, 11)}`;
+    return `rule_${Math.random().toString(36).substring(2, 11)}`;
   }
 }
 

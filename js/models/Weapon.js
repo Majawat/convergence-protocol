@@ -1,5 +1,5 @@
 // Weapon.js
-import { SpecialRule } from './SpecialRule.js';
+import { SpecialRule } from "./SpecialRule.js";
 
 class Weapon {
   constructor(data) {
@@ -88,7 +88,7 @@ class Weapon {
 
   // Helper to generate a unique ID
   generateId() {
-    return `weapon_ + ${Math.random().toString(36).substring(2, 11)}`;
+    return `weapon_${Math.random().toString(36).substring(2, 11)}`;
   }
 }
 

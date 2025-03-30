@@ -147,7 +147,9 @@ class Army {
   resetHealth() {
     this.units.forEach((unit) => {
       unit.wounds = 0;
-      unit.morale = "Normal";
+      unit.isShaken = false;
+      unit.isRouted = false;
+      unit.isFatigued = false;
       unit.isDestroyed = false;
       unit.updateModelHealth();
     });
@@ -190,7 +192,7 @@ class Army {
 
   // Helper to generate a unique ID
   generateId() {
-    return "army_" + Math.random().toString(36).substring(2, 11);
+    return `army_${Math.random().toString(36).substring(2, 11)}`;
   }
 }
 
