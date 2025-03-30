@@ -26,9 +26,9 @@ class Unit {
 
     // Collections
     this.loadout = []; // Weapons
+    this.weapons = data.weapons || [];
     this.models = []; // Models
     this.rules = []; // Special rules
-    this.upgrades = []; // Upgrades
     this.traits = data.traits || [];
 
     // Combined/Joined unit relationships
@@ -48,11 +48,18 @@ class Unit {
     // Parent reference
     this.armyId = data.armyId;
 
+    this._weaponsToRemove = [];
+    this._upgradedWeapons = [];
+
     // Initialize collections from data
     this.initializeRules(data.rules || []);
     this.initializeLoadout(data.loadout || []);
     this.createModels(data);
-    this.initializeUpgrades(data.selectedUpgrades || []);
+
+    // Process upgrades last, after base unit is set up
+    if (data.selectedUpgrades && data.selectedUpgrades.length > 0) {
+      this.processSelectedUpgrades(data.selectedUpgrades);
+    }
   }
 
   // Initialize special rules
@@ -65,15 +72,96 @@ class Unit {
   // Initialize weapons loadout
   initializeLoadout(loadoutData) {
     // Convert loadout data to Weapon objects
-    // this.loadout = loadoutData.map(weaponData => new Weapon(weaponData));
-    this.loadout = loadoutData; // Simplified for now
+    this.loadout = loadoutData.map((weaponData) => new Weapon(weaponData));
+    // this.loadout = loadoutData;
   }
 
   // Initialize upgrades
   initializeUpgrades(upgradesData) {
     // Convert upgrade data to Upgrade objects
-    // this.upgrades = upgradesData.map(upgradeData => new Upgrade(upgradeData, this));
+    /* this.upgrades = upgradesData.map(
+      (upgradeData) => new Upgrade(upgradeData, this)
+    ); */
     this.upgrades = upgradesData; // Simplified for now
+  }
+
+  // Process a single upgrade instance
+  processUpgradeInstance(upgradeInstance) {
+    const { upgrade, option } = upgradeInstance;
+
+    // Handle different upgrade variants
+    switch (upgrade.variant) {
+      case "upgrade":
+        this.applyUpgradeOption(option);
+        break;
+      case "replace":
+        this.applyReplaceOption(upgrade, option);
+        break;
+      // Add other variant types as needed
+    }
+
+    // Apply cost changes
+    this.applyCostChanges(option);
+  }
+
+  // Apply an upgrade option (adding new items)
+  applyUpgradeOption(option) {
+    // Add weapons
+    if (option.gains) {
+      option.gains.forEach((item) => {
+        if (item.type === "ArmyBookWeapon") {
+          // Add a copy of the weapon to a temporary array
+          // We'll rebuild the loadout later
+          this._upgradedWeapons.push({ ...item });
+        } else if (item.type === "ArmyBookRule") {
+          // Add rules if the option adds any
+          this.rules.push(new SpecialRule(item));
+        }
+        // Handle other item types
+      });
+    }
+  }
+
+  // Apply a replace option (replacing existing items)
+  applyReplaceOption(upgrade, option) {
+    // Process weapon replacements
+    if (upgrade.targets && upgrade.targets.length > 0) {
+      upgrade.targets.forEach((targetName) => {
+        // Mark weapons with this name for removal
+        this._weaponsToRemove.push(targetName);
+      });
+    }
+
+    // Add new weapons from the option
+    this.applyUpgradeOption(option);
+  }
+
+  // Apply cost changes from an upgrade option
+  applyCostChanges(option) {
+    if (!option.costs) return;
+
+    // Find costs relevant to this unit
+    const unitCost = option.costs.find((cost) => cost.unitId === this.id);
+    if (unitCost) {
+      this.cost += unitCost.cost;
+    }
+  }
+
+  // Rebuild the final loadout after applying all upgrades
+  rebuildLoadout() {
+    // Start with a copy of the original weapons
+    const finalLoadout = [...this.weapons];
+
+    // Remove weapons that have been replaced
+    const filteredLoadout = finalLoadout.filter(
+      (weapon) => !this._weaponsToRemove.includes(weapon.name)
+    );
+
+    // Add new weapons from upgrades
+    const completeLoadout = [...filteredLoadout, ...this._upgradedWeapons];
+
+    // Update the unit's loadout
+    this.loadout = completeLoadout;
   }
 
   // Helper method to process bases sizes
@@ -88,6 +176,19 @@ class Unit {
     }
     // Default return if not valid
     return null;
+  }
+
+  // Process all selected upgrades
+  processSelectedUpgrades(selectedUpgrades) {
+    if (!selectedUpgrades || !Array.isArray(selectedUpgrades)) return;
+
+    // Process each upgrade instance
+    selectedUpgrades.forEach((upgradeInstance) => {
+      this.processUpgradeInstance(upgradeInstance);
+    });
+
+    // Rebuild the final loadout
+    this.rebuildLoadout();
   }
 
   // Create individual models with assigned weapons
