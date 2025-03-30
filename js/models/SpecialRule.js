@@ -9,10 +9,6 @@ class SpecialRule {
     // Display/UI
     this.label = data.label || this.formatLabel();
     this.description = data.description || "";
-
-    // Optional: categorization properties
-    this.type = data.type || "passive"; // e.g., passive, active, triggered
-    this.phase = data.phase || "any"; // e.g., movement, shooting, melee
   }
 
   // Format a display label (e.g., "AP(1)")
@@ -26,19 +22,6 @@ class SpecialRule {
   // Check if this rule is equivalent to another rule
   isEquivalentTo(otherRule) {
     return this.name === otherRule.name && this.rating === otherRule.rating;
-  }
-
-  // Clone this rule (useful when applying to new contexts)
-  clone() {
-    return new SpecialRule({
-      id: this.generateId(), // New ID for the clone
-      name: this.name,
-      rating: this.rating,
-      label: this.label,
-      description: this.description,
-      type: this.type,
-      phase: this.phase,
-    });
   }
 
   // Apply this rule's effect (placeholder - implementation depends on your game logic)

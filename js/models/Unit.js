@@ -4,7 +4,7 @@ import { SpecialRule } from "./SpecialRule.js";
 import { Weapon } from "./Weapon.js";
 
 class Unit {
-  constructor(data, armyID) {
+  constructor(data) {
     // Basic properties
     this.id = data.id || this.generateId();
     this.selectionId = data.selectionId || this.id;
@@ -46,7 +46,7 @@ class Unit {
     this.isShaken = false;
 
     // Parent reference
-    this.army = armyID;
+    this.armyId = data.armyId;
 
     // Initialize collections from data
     this.initializeRules(data.rules || []);
@@ -58,8 +58,8 @@ class Unit {
   // Initialize special rules
   initializeRules(rulesData) {
     // Convert rule data to SpecialRule objects
-    // this.rules = rulesData.map(ruleData => new SpecialRule(ruleData));
-    this.rules = rulesData; // Simplified for now
+    this.rules = rulesData.map((ruleData) => new SpecialRule(ruleData));
+    //this.rules = rulesData; // Simplified for now
   }
 
   // Initialize weapons loadout
