@@ -6,15 +6,14 @@ class Model {
     this.unitId = data.unitId; // ID of the unit this model belongs to
     this.modelIndex = data.modelIndex; // Index of this model in its unit
     this.name = data.name; // Custom name of this model
-    this.quality = data.quality;
-    this.defense = data.defense;
-    this.maxWounds = data.maxWounds || 1;
+    this.maxWounds =  data.maxWounds || 1;
     this.wounds = 0;
 
     // Iniialize model type properties
     this.isHero = data.isHero || false;
     this.isCaster = data.isCaster || false;
     this.spellTokens = data.spellTokens || 0;
+    this.casterRating = data.casterRating || 0;
 
     // Initialize state properties
     this.isDestroyed = false;

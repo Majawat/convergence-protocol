@@ -38,7 +38,6 @@ class Unit {
 
     // Game state
     this.wounds = 0;
-    this.maxWounds = this.size;
     this.activated = false;
     this.isDestroyed = false;
     this.isRouted = false;
@@ -60,6 +59,8 @@ class Unit {
     if (data.selectedUpgrades && data.selectedUpgrades.length > 0) {
       this.processSelectedUpgrades(data.selectedUpgrades);
     }
+
+    this.maxWounds = this.rules.find((rule) => rule.name === "Tough").rating;
   }
 
   // Initialize special rules
@@ -201,16 +202,15 @@ class Unit {
       const modelData = {
         unitId: this.selectionId,
         modelIndex: i,
-        quality: this.quality,
-        defense: this.defense,
         isHero: this.hasRule("Hero"),
         isCaster: this.hasRule("Caster"),
-        unitName: this.customName,
+        name: this.createModelName(i, this.size),
+        casterRating: this.hasRule("Caster") ? getCasterRating() : 0,
+        maxWounds: this.rules.find((rule) => rule.name === "Tough").rating,
       };
 
       // Create model instance
-      // const model = new Model(modelData, this);
-      const model = modelData; // Simplified for now
+      const model = new Model(modelData);
 
       this.models.push(model);
     }
@@ -219,13 +219,37 @@ class Unit {
     this.assignWeaponsToModels();
   }
 
+  // Find the caster rating for the unit
+  getCasterRating(rules) {
+    if (hasRule("Caster")) {
+      return rules.find((rule) => rule.name === "Caster").rating;
+    }
+    return 0;
+  }
+
+  // Create model name
+  createModelName(index, size) {
+    if (size === 1) {
+      return this.customName;
+    } else {
+      return `${this.name} ${index + 1}`;
+    }
+  }
+
   // Assign weapons to models based on loadout
   assignWeaponsToModels() {
     // This is a placeholder - implementation will depend on your weapon assignment logic
-    console.log(`Assigning weapons to models in unit ${this.name}`);
+    console.log(`Assigning weapons to models in unit: ${this.name}`);
+    // Assigning all weapons if there is only one model
+    if (this.models.length === 1) {
+      this.models[0].weapons = this.loadout;
+      return;
+    }
 
-    // Example implementation would distribute weapons to models
-    // based on your game's rules and weapon availability
+    // Assigning weapons to each model
+    this.loadout.forEach((weapon, index) => {
+      this.models[index % this.models.length].weapons.push(weapon);
+    });
   }
 
   // Check if unit has a specific rule
